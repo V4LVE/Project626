@@ -1,25 +1,32 @@
 #include <Arduino.h>
 #include "Config.h"
+#include "../include/Drivers/ledMatrixDriver.h"
+#include "../include/Drivers/ledStripDriver.h"
 #include "../include/Drivers/micDriver.h"
-#include "../src/Controllers/LoudnessController.h"
+#include "../src/Controllers/loudnessController.h"
+#include "../src/Controllers/eqController.h"
+#include "../src/Controllers/pulseController.h"
 
 // Drivers (hardware-facing)
-//LedMatrixDriver matrixDriver;
+LedMatrixDriver matrixDriver;
+LedStripDriver stripDriver;
 MicDriver micDriver;
 
 // Controllers (logic-facing)
-LoudnessController loudnessController;
-//EqualizerController eqController;
-
-uint32_t lastFrameMs = 0;
+LoudnessController loudnessController; // mic -> 0..1 loudness
+EqualizerController eqController;       // loudness-driven matrix EQ
+PulseController pulseController;        // time-driven strip pulse (mic-independent)
 
 void setup() {
     Serial.begin(115200);
 
-    //matrixDriver.begin();
+    matrixDriver.begin();
+    stripDriver.begin();
     micDriver.begin();
+
     loudnessController.begin(&micDriver);
-    //eqController.begin(&matrixDriver);
+    eqController.begin(&matrixDriver);
+    pulseController.begin(&stripDriver);
 }
 
 void loop() {
@@ -28,8 +35,9 @@ void loop() {
     loudnessController.update();
     float loudness = loudnessController.getLoudness();
 
-    //eqController.update(loudness);
+    eqController.update(loudness);
+    pulseController.update(); // independent of loudness entirely
 
     // Uncomment while tuning NOISE_FLOOR / LOUD_CEILING in Config.h:
-    Serial.println(loudness);
+    // Serial.println(loudness);
 }

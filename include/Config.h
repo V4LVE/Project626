@@ -1,11 +1,13 @@
 #pragma once
 #include <Arduino.h>
+#include <FastLED.h>
 
 // =====================================================================
 // HARDWARE PINS
 // =====================================================================
 namespace Pins {
-    constexpr uint8_t LED_DATA   = 6;   // WS2812B data line
+    constexpr uint8_t LED_DATA   = 6;   // WS2812B matrix data line
+    constexpr uint8_t STRIP_DATA = 7;   // WS2811 strip data line
     constexpr uint8_t MIC_ANALOG = A0;  // Microphone module analog OUT
 }
 
@@ -18,6 +20,17 @@ namespace MatrixGeo {
     constexpr uint8_t WIDTH      = 32;          // number of bars
     constexpr uint8_t HEIGHT     = 8;           // bar height resolution
     constexpr uint16_t NUM_LEDS  = WIDTH * HEIGHT;
+}
+
+// =====================================================================
+// STRIP GEOMETRY
+// WS2811 addressable strip, run as a slow time-based "breathing" pulse
+// alongside the matrix (no per-bar layout, and no mic/loudness
+// dependency - see PulseController).
+// TUNE NUM_LEDS to your actual strip length once you've counted it.
+// =====================================================================
+namespace StripGeo {
+    constexpr uint16_t NUM_LEDS = 300; // <-- set this to your real strip length
 }
 
 // =====================================================================
@@ -64,5 +77,20 @@ namespace EqConfig {
     constexpr uint8_t  MIN_VALUE        = 90;   // brightness floor (quiet) - keeps it visible at idle
     constexpr uint8_t  MAX_VALUE        = 255;  // brightness ceiling (loud)
 
-    constexpr uint8_t  GLOBAL_BRIGHTNESS = 110; // FastLED.setBrightness() - keep modest, 256 LEDs draw real current
+    constexpr uint8_t  GLOBAL_BRIGHTNESS = 110; // per-controller brightness via showLeds() - keep modest, 256 LEDs draw real current
+}
+
+// =====================================================================
+// STRIP (PULSE) ANIMATION TUNING
+// Slow, continuous "breathing" pulse with a gently cycling color.
+// Entirely time-based - NOT connected to the mic/loudness at all.
+// =====================================================================
+namespace StripConfig {
+    constexpr accum88 PULSE_BPM        = 1;   // breaths per minute - lower = slower/calmer pulse
+    constexpr uint8_t  MIN_VALUE       = 20;   // dimmest point of each breath
+    constexpr uint8_t  MAX_VALUE       = 200;  // brightest point of each breath
+    constexpr uint8_t  PULSE_SATURATION = 200; // color saturation (0=white, 255=fully saturated)
+    constexpr uint8_t  HUE_CYCLE_SPEED = 1;    // how much hue advances per frame - higher = faster color cycling
+
+    constexpr uint8_t  GLOBAL_BRIGHTNESS = 110; // per-controller brightness via showLeds() - independent of the matrix's
 }
