@@ -1,18 +1,35 @@
 #include <Arduino.h>
+#include "Config.h"
+#include "../include/Drivers/micDriver.h"
+#include "../src/Controllers/LoudnessController.h"
 
-// put function declarations here:
-int myFunction(int, int);
+// Drivers (hardware-facing)
+//LedMatrixDriver matrixDriver;
+MicDriver micDriver;
+
+// Controllers (logic-facing)
+LoudnessController loudnessController;
+//EqualizerController eqController;
+
+uint32_t lastFrameMs = 0;
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+    Serial.begin(115200);
+
+    //matrixDriver.begin();
+    micDriver.begin();
+    loudnessController.begin(&micDriver);
+    //eqController.begin(&matrixDriver);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+    // Sampling the mic is blocking for ~MicConfig::SAMPLE_WINDOW_MS (default
+    // 50ms), which doubles as our frame pacing - no extra delay() needed.
+    loudnessController.update();
+    float loudness = loudnessController.getLoudness();
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+    //eqController.update(loudness);
+
+    // Uncomment while tuning NOISE_FLOOR / LOUD_CEILING in Config.h:
+    Serial.println(loudness);
 }
