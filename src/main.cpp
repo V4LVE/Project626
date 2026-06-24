@@ -35,9 +35,17 @@ void loop() {
     loudnessController.update();
     float loudness = loudnessController.getLoudness();
 
-    eqController.update(loudness);
+    matrixDriver.setPixel(0, 0, CRGB::Red); // push the matrix frame (EQ) to the panel
+
+    for (uint8_t i = 0; i < MatrixGeo::WIDTH; i++) {
+        matrixDriver.setPixel(i, 7, CRGB::Red);
+        matrixDriver.show();
+        delay(1000); // brief delay to visualize the pixel-by-pixel update
+    }
+
+    // eqController.update(0.8);
     pulseController.update(); // independent of loudness entirely
 
     // Uncomment while tuning NOISE_FLOOR / LOUD_CEILING in Config.h:
-    // Serial.println(loudness);
+    Serial.println(loudness);
 }
