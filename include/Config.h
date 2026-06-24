@@ -13,8 +13,8 @@ namespace Pins {
 
 // =====================================================================
 // MATRIX GEOMETRY
-// 8x32 panel, row-major wiring, all rows same direction (no zigzag).
-// 32 columns wide (the EQ bars), 8 rows tall (the EQ height).
+// Logical EQ layout is 32 columns wide by 8 rows tall, then rotated
+// clockwise in LedMatrixDriver onto the physical 8x32 panel.
 // =====================================================================
 namespace MatrixGeo {
     constexpr uint8_t WIDTH      = 32;          // number of bars
