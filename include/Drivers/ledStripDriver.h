@@ -6,28 +6,33 @@
 // LedStripDriver
 //
 // Pure hardware-facing wrapper around FastLED for a WS2811 addressable
-// strip used as a simple ambient glow (not a per-bar layout like the
-// matrix). Set NUM_LEDS for your actual strip in Config.h.
+// strip used by the running-light controller. Set NUM_LEDS for your
+// actual strip in Config.h.
 //
-// Note: WS2811 strips are conventionally wired RGB (not GRB like
-// WS2812B) - if colors look swapped on your strip, change the color
-// order template parameter below.
+// Note: this strip is actually behaving like a GRB device on the bench,
+// so the FastLED color order is set to GRB below. If that changes with a
+// different strip, adjust the template parameter here.
 //
 // Like LedMatrixDriver, this class knows nothing about "loudness" - it
-// only knows how to push a single color to every pixel. All animation
-// logic belongs in the Controller layer.
+// only knows how to store and push pixel color data. All animation logic
+// belongs in the Controller layer.
 // -----------------------------------------------------------------------
 class LedStripDriver {
 public:
     LedStripDriver() {}
 
     void begin() {
-        _controller = &FastLED.addLeds<WS2811, Pins::STRIP_DATA, RGB>(_leds, StripGeo::NUM_LEDS);
+        _controller = &FastLED.addLeds<WS2811, Pins::STRIP_DATA, GRB>(_leds, StripGeo::NUM_LEDS);
         clear();
         show();
     }
 
-    // Sets every pixel on the strip to the same color (ambient glow).
+    void setPixel(uint16_t index, const CRGB& color) {
+        if (index >= StripGeo::NUM_LEDS) return;
+        _leds[index] = color;
+    }
+
+    // Sets every pixel on the strip to the same color.
     void setAll(const CRGB& color) {
         fill_solid(_leds, StripGeo::NUM_LEDS, color);
     }

@@ -15,7 +15,7 @@ MicDriver micDriver;
 // Controllers (logic-facing)
 LoudnessController loudnessController; // mic -> 0..1 loudness
 EqualizerController eqController;       // loudness-driven matrix EQ
-PulseController pulseController;        // time-driven strip pulse (mic-independent)
+CometController cometController;        // time-driven Danish strip comet chase (mic-independent)
 
 void setup() {
     Serial.begin(115200);
@@ -26,7 +26,7 @@ void setup() {
 
     loudnessController.begin(&micDriver);
     eqController.begin(&matrixDriver);
-    pulseController.begin(&stripDriver);
+    cometController.begin(&stripDriver);
 }
 
 void loop() {
@@ -44,7 +44,7 @@ void loop() {
     // }
 
     eqController.update(loudness); // loudness-driven matrix EQ
-    pulseController.update(); // independent of loudness entirely
+    cometController.update(); // independent of loudness entirely
 
     // Uncomment while tuning NOISE_FLOOR / LOUD_CEILING in Config.h:
     Serial.println(loudness);

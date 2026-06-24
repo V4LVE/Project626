@@ -4,39 +4,65 @@
 #include "../include/Drivers/ledStripDriver.h"
 
 // -----------------------------------------------------------------------
-// PulseController
+// CometController
 //
-// Drives the WS2811 strip as a slow, continuous "breathing" pulse with a
-// slowly cycling color - entirely time-based. It has NO dependency on
-// loudness/the mic at all; it just needs millis() to keep moving.
+// Drives the WS2811 strip as a Danish-themed red-and-white comet chase -
+// entirely time-based. It has NO dependency on loudness/the mic at all;
+// it just needs millis() to keep moving.
 //
-// Brightness comes from beatsin8() (a smooth sine wave driven by a BPM),
-// and hue comes from a free-running counter that increments slowly every
-// frame, wrapping around the 0-255 hue wheel.
+// The strip holds a deep Danish red base while several bright white
+// comet heads race around with long red tails.
 // -----------------------------------------------------------------------
-class PulseController {
+class CometController {
 public:
-    PulseController() {}
+    CometController() {}
 
     void begin(LedStripDriver* strip) {
         _strip = strip;
     }
 
     void update() {
-        // Smooth brightness wave between MIN_VALUE and MAX_VALUE, looping
-        // PULSE_BPM times per minute. beatsin8 tracks elapsed time itself
-        // (via millis()), so nothing needs to be stored between frames.
-        uint8_t brightness = beatsin8(StripConfig::PULSE_BPM, StripConfig::MIN_VALUE, StripConfig::MAX_VALUE);
+        if (_strip == nullptr || StripGeo::NUM_LEDS == 0) return;
 
-        // Slowly drifting hue: advances a tiny amount each frame so the
-        // color cycles gradually through the wheel rather than snapping.
-        _hue += StripConfig::HUE_CYCLE_SPEED;
+        static uint32_t lastUpdateMs = 0;
+        if (millis() - lastUpdateMs < StripConfig::COMET_STEP_MS) {
+            return;
+        }
+        lastUpdateMs = millis();
 
-        _strip->setAll(CHSV(_hue, StripConfig::PULSE_SATURATION, brightness));
+        const CRGB danishRed(StripConfig::COMET_RED_VALUE, 0, 0);
+        _strip->setAll(danishRed);
+
+        uint16_t baseHead = (millis() / StripConfig::COMET_STEP_MS) % StripGeo::NUM_LEDS;
+        uint16_t spacing = StripGeo::NUM_LEDS / StripConfig::COMET_COUNT;
+
+        for (uint8_t comet = 0; comet < StripConfig::COMET_COUNT; comet++) {
+            uint16_t head = (baseHead + static_cast<uint16_t>(comet) * spacing) % StripGeo::NUM_LEDS;
+
+            for (uint8_t tail = 0; tail < StripConfig::COMET_TAIL_LENGTH; tail++) {
+                uint16_t index = (head + StripGeo::NUM_LEDS - tail) % StripGeo::NUM_LEDS;
+
+                uint8_t intensity;
+                if (tail < StripConfig::COMET_HEAD_WIDTH) {
+                    intensity = 255;
+                } else {
+                    uint8_t tailSpan = StripConfig::COMET_TAIL_LENGTH - StripConfig::COMET_HEAD_WIDTH;
+                    if (tailSpan == 0) {
+                        intensity = 80;
+                    } else {
+                        uint8_t tailPos = tail - StripConfig::COMET_HEAD_WIDTH;
+                        uint8_t fade = 255 - static_cast<uint8_t>((static_cast<uint16_t>(tailPos) * 255U) / tailSpan);
+                        intensity = qadd8(100, fade);
+                    }
+                }
+
+                _strip->setPixel(index, blend(danishRed, CRGB::White, intensity));
+            }
+        }
+
         _strip->show();
     }
 
 private:
     LedStripDriver* _strip = nullptr;
-    uint8_t _hue = 0;
 };

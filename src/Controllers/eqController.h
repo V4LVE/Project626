@@ -21,7 +21,7 @@
 //      loudness to a hot hue/full saturation/full brightness at high
 //      loudness - so the whole panel gets visually "hotter" when loud.
 //
-// The companion WS2811 strip is handled separately by PulseController -
+// The companion WS2811 strip is handled separately by CometController -
 // it's a fully independent, time-based animation with no loudness
 // dependency, so it doesn't belong in this class.
 // -----------------------------------------------------------------------

@@ -24,9 +24,9 @@ namespace MatrixGeo {
 
 // =====================================================================
 // STRIP GEOMETRY
-// WS2811 addressable strip, run as a slow time-based "breathing" pulse
+// WS2811 addressable strip, run as a red-and-white comet chase theme
 // alongside the matrix (no per-bar layout, and no mic/loudness
-// dependency - see PulseController).
+// dependency - see CometController).
 // TUNE NUM_LEDS to your actual strip length once you've counted it.
 // =====================================================================
 namespace StripGeo {
@@ -81,16 +81,17 @@ namespace EqConfig {
 }
 
 // =====================================================================
-// STRIP (PULSE) ANIMATION TUNING
-// Slow, continuous "breathing" pulse with a gently cycling color.
+// STRIP (COMET) ANIMATION TUNING
+// Red base with a hard-running white comet head inspired by Danish
+// flag colors.
 // Entirely time-based - NOT connected to the mic/loudness at all.
 // =====================================================================
 namespace StripConfig {
-    constexpr accum88 PULSE_BPM        = 1;   // breaths per minute - lower = slower/calmer pulse
-    constexpr uint8_t  MIN_VALUE       = 20;   // dimmest point of each breath
-    constexpr uint8_t  MAX_VALUE       = 200;  // brightest point of each breath
-    constexpr uint8_t  PULSE_SATURATION = 200; // color saturation (0=white, 255=fully saturated)
-    constexpr uint8_t  HUE_CYCLE_SPEED = 1;    // how much hue advances per frame - higher = faster color cycling
+    constexpr uint16_t COMET_STEP_MS          = 10;   // smaller = faster chase
+    constexpr uint8_t  COMET_COUNT            = 4;    // number of simultaneous comets
+    constexpr uint8_t  COMET_TAIL_LENGTH      = 12;   // longer = more aggressive streak
+    constexpr uint8_t  COMET_HEAD_WIDTH       = 3;    // bright white head thickness
+    constexpr uint8_t  COMET_RED_VALUE        = 180;  // Danish flag red base intensity
 
     constexpr uint8_t  GLOBAL_BRIGHTNESS = 110; // per-controller brightness via showLeds() - independent of the matrix's
 }
