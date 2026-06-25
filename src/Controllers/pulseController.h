@@ -17,12 +17,14 @@ class CometController {
 public:
     CometController() {}
 
-    void begin(LedStripDriver* strip) {
+    void begin(LedStripDriver* strip, LedStripDriver* strip2 = nullptr) {
         _strip = strip;
+        _strip2 = strip2;
     }
 
     void update() {
         if (_strip == nullptr || StripGeo::NUM_LEDS == 0) return;
+        if (_strip2 == nullptr || StripGeo::NUM_LEDS == 0) return;
 
         static uint32_t lastUpdateMs = 0;
         if (millis() - lastUpdateMs < StripConfig::COMET_STEP_MS) {
@@ -32,6 +34,7 @@ public:
 
         const CRGB danishRed(StripConfig::COMET_RED_VALUE, 0, 0);
         _strip->setAll(danishRed);
+        _strip2->setAll(danishRed);
 
         uint16_t baseHead = (millis() / StripConfig::COMET_STEP_MS) % StripGeo::NUM_LEDS;
         uint16_t spacing = StripGeo::NUM_LEDS / StripConfig::COMET_COUNT;
@@ -57,12 +60,19 @@ public:
                 }
 
                 _strip->setPixel(index, blend(danishRed, CRGB::White, intensity));
+                if (_strip2) {
+                    _strip2->setPixel(index, blend(danishRed, CRGB::White, intensity));
+                }
             }
         }
 
         _strip->show();
+        if (_strip2) {
+            _strip2->show();
+        }
     }
 
 private:
     LedStripDriver* _strip = nullptr;
+    LedStripDriver* _strip2 = nullptr;
 };

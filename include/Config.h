@@ -8,6 +8,7 @@
 namespace Pins {
     constexpr uint8_t LED_DATA   = 6;   // WS2812B matrix data line
     constexpr uint8_t STRIP_DATA = 7;   // WS2811 strip data line
+    constexpr uint8_t STRIP_DATA2 = 8;  // WS2811 strip data line for second strip (if used)
     constexpr uint8_t MIC_ANALOG = A0;  // Microphone module analog OUT
 }
 

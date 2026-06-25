@@ -23,6 +23,7 @@ public:
 
     void begin() {
         _controller = &FastLED.addLeds<WS2811, Pins::STRIP_DATA, GRB>(_leds, StripGeo::NUM_LEDS);
+        _controller2 = &FastLED.addLeds<WS2811, Pins::STRIP_DATA2, GRB>(_leds, StripGeo::NUM_LEDS);
         clear();
         show();
     }
@@ -45,9 +46,11 @@ public:
     // of the matrix (or any other FastLED-registered device).
     void show() {
         if (_controller) _controller->showLeds(StripConfig::GLOBAL_BRIGHTNESS);
+        if (_controller2) _controller2->showLeds(StripConfig::GLOBAL_BRIGHTNESS);
     }
 
 private:
     CRGB _leds[StripGeo::NUM_LEDS];
     CLEDController* _controller = nullptr;
+    CLEDController* _controller2 = nullptr;
 };
